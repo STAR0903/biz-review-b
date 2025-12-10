@@ -120,6 +120,63 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.review.v1.AuditReviewReply'
+    /v1/review/hot-keywords/{spuID}:
+        get:
+            tags:
+                - Review
+            description: C端获取热门评价关键词
+            operationId: Review_GetHotKeywords
+            parameters:
+                - name: spuID
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.review.v1.GetHotKeywordsReply'
+    /v1/review/list/{spuID}:
+        get:
+            tags:
+                - Review
+            description: C端获取某个SPU的评价列表
+            operationId: Review_ListReviews
+            parameters:
+                - name: spuID
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: size
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: sortBy
+                  in: query
+                  schema:
+                    type: string
+                - name: tags
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.review.v1.ListReviewsReply'
     /v1/review/reply:
         post:
             tags:
@@ -143,7 +200,7 @@ paths:
         get:
             tags:
                 - Review
-            description: C端获取评价详情
+            description: C端获取评价
             operationId: Review_GetReview
             parameters:
                 - name: reviewID
@@ -158,6 +215,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.review.v1.GetReviewReply'
+    o/v1/appeal/audit:
+        post:
+            tags:
+                - Operation
+            description: 审核对于评价的申诉
+            operationId: Operation_AuditAppeal
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.operation.v1.AuditAppealRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.operation.v1.AuditAppealReply'
+    o/v1/review/audit:
+        post:
+            tags:
+                - Operation
+            description: 审核评价
+            operationId: Operation_AuditReview
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.operation.v1.AuditReviewRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.operation.v1.AuditReviewReply'
 components:
     schemas:
         api.business.v1.AppealReviewReply:
@@ -202,6 +297,50 @@ components:
                 videoInfo:
                     type: string
             description: 回复评价的参数
+        api.operation.v1.AuditAppealReply:
+            type: object
+            properties:
+                appealID:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+            description: 审核对于评价的申诉的回复
+        api.operation.v1.AuditAppealRequest:
+            type: object
+            properties:
+                appealID:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+                opUser:
+                    type: string
+                opRemarks:
+                    type: string
+            description: 审核对于评价的申诉的参数
+        api.operation.v1.AuditReviewReply:
+            type: object
+            properties:
+                reviewID:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+            description: 审核评价的回复
+        api.operation.v1.AuditReviewRequest:
+            type: object
+            properties:
+                reviewID:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+                opUser:
+                    type: string
+                opReason:
+                    type: string
+            description: 审核评价的参数
         api.review.v1.AppealReviewReply:
             type: object
             properties:
@@ -254,7 +393,7 @@ components:
                 status:
                     type: integer
                     format: int32
-            description: C端审核评价的回复
+            description: O端审核评价的回复
         api.review.v1.AuditReviewRequest:
             type: object
             properties:
@@ -267,7 +406,7 @@ components:
                     type: string
                 opReason:
                     type: string
-            description: C端审核评价的参数
+            description: O端审核评价的参数
         api.review.v1.CreateReviewReply:
             type: object
             properties:
@@ -299,12 +438,37 @@ components:
                 anonymous:
                     type: boolean
             description: C端创建评价的参数
+        api.review.v1.GetHotKeywordsReply:
+            type: object
+            properties:
+                keywords:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.review.v1.GetHotKeywordsReply_Keyword'
+            description: C端获取热门评价关键词的回复
+        api.review.v1.GetHotKeywordsReply_Keyword:
+            type: object
+            properties:
+                keyword:
+                    type: string
+                count:
+                    type: string
         api.review.v1.GetReviewReply:
             type: object
             properties:
                 info:
                     $ref: '#/components/schemas/api.review.v1.ReviewInfo'
-            description: C端获取评价详情的回复
+            description: C端获取评价的回复
+        api.review.v1.ListReviewsReply:
+            type: object
+            properties:
+                reviews:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.review.v1.ReviewDetail'
+                nextPageToken:
+                    type: string
+            description: C端获取某个SPU的评价列表的回复
         api.review.v1.ReplyReviewReply:
             type: object
             properties:
@@ -325,6 +489,47 @@ components:
                 videoInfo:
                     type: string
             description: B端回复评价的参数
+        api.review.v1.ReviewDetail:
+            type: object
+            properties:
+                userID:
+                    type: string
+                orderID:
+                    type: string
+                score:
+                    type: integer
+                    format: int32
+                serviceScore:
+                    type: integer
+                    format: int32
+                expressScore:
+                    type: integer
+                    format: int32
+                content:
+                    type: string
+                picInfo:
+                    type: string
+                videoInfo:
+                    type: string
+                createTime:
+                    type: string
+                updateTime:
+                    type: string
+                anonymous:
+                    type: boolean
+                reply:
+                    $ref: '#/components/schemas/api.review.v1.ReviewDetail_Reply'
+        api.review.v1.ReviewDetail_Reply:
+            type: object
+            properties:
+                content:
+                    type: string
+                picInfo:
+                    type: string
+                videoInfo:
+                    type: string
+                createTime:
+                    type: string
         api.review.v1.ReviewInfo:
             type: object
             properties:
@@ -356,5 +561,6 @@ components:
 tags:
     - name: Business
       description: Business 商家端服务
+    - name: Operation
     - name: Review
       description: 定义评价服务
